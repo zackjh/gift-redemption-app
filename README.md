@@ -64,7 +64,7 @@ This application is built using TypeScript with Express.js, so familiarity with 
 
 6. Use the application
 
-   Navigate to [localhost:3000](localhost:3000) in your browser to use the application.
+   Navigate to [localhost:3000](http://localhost:3000) in your browser to use the application.
 
 ## Assumptions
 
