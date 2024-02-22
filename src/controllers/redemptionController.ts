@@ -3,31 +3,38 @@ import {
   addRedemption,
   checkIfTeamHasRedeemedGift,
 } from "../models/redemptionModel";
-import { readCsv } from "../utils/csvReader";
 import { dataStore } from "../dataStore";
 
+/**
+ * Handles the redemption of gifts by staff members.
+ * Validates staff pass ID, checks team membership and redemption status,
+ * and records new redemptions.
+ *
+ * @param {Request} req - The request object from Express.
+ * @param {Response} res - The response object from Express.
+ */
 export async function redeemGift(req: Request, res: Response) {
   try {
     const { staffPassId } = req.body;
 
-    // Validate request data
+    // Ensure staff pass ID is provided
     if (!staffPassId) {
       res.status(400).send({ message: "staffPassId was not provided." });
       return;
     }
 
-    // Look up this staff member's team name
+    // Retrieve team name using staff pass ID
     const teamName = dataStore.getTeamNameByStaffPassId(staffPassId);
 
-    // Validate that this staff member is part of a team
-    if (teamName === undefined) {
+    // Verify team membership
+    if (!teamName) {
       res.status(400).send({
         message: `The staff member ${staffPassId} is not part of a team.`,
       });
       return;
     }
 
-    // Check if this team's gift has already been redeemed
+    // Check redemption status for the team
     const alreadyRedeemed = await checkIfTeamHasRedeemedGift(teamName);
     if (alreadyRedeemed) {
       res.status(400).send({
@@ -36,17 +43,13 @@ export async function redeemGift(req: Request, res: Response) {
       return;
     }
 
-    // If this team's gift has yet to be redeemed, proceed to add a new redemption
-    const redemptionId = await addRedemption(staffPassId, teamName, Date.now());
+    // Record new redemption
+    await addRedemption(staffPassId, teamName, Date.now());
     res.status(201).send({
       message: `The gift for team ${teamName} has been redeemed successfully.`,
     });
   } catch (error) {
-    console.error(error);
-    if (error instanceof Error) {
-      res.status(500).send({ message: error.message });
-      return;
-    }
-    res.status(500).send({ message: "An unknown error occured." });
+    console.error(error); // Log the error for debugging
+    res.status(500).send({ message: "An unknown error occurred." });
   }
 }
