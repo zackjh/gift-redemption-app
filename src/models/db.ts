@@ -6,7 +6,7 @@ let db: Promise<Database>;
 
 export async function initialiseDb() {
   db = open({
-    filename: join(__dirname, "../db/database.sqlite"),
+    filename: join(__dirname, "../../db/database.sqlite"),
     driver: sqlite3.Database,
   });
 
@@ -21,13 +21,8 @@ export async function initialiseDb() {
         );
     `);
 
-  console.log("The database has been initialized successfully.");
+  console.log("The database has been initialised successfully.");
 }
-
-// Execute the initialisation function and catch any errors
-initialiseDb().catch((error) => {
-  console.error("Failed to initialize the database:", error);
-});
 
 // Export 'db' for use in the rest of the application
 export { db };
